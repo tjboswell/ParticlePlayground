@@ -1,0 +1,26 @@
+.controls {
+    display: flex;
+    padding: 0 50px;
+    height: 100px;
+    &__item {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-right: 30px;
+        width: 200px;
+    }
+
+
+    .color-control {
+        display: flex;
+        flex-direction: column;
+
+        .color-field-control {
+            display: flex;
+
+            &__label {
+                width: 50px;
+            }
+        }
+    }
+}
