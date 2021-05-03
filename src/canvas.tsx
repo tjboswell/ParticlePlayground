@@ -1,14 +1,8 @@
-import React, {
-    useState,
-    useEffect,
-    useMemo,
-    useCallback,
-    useRef,
-} from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { RGBValue } from './types';
 import { Shape } from './enums';
 
-interface Props {
+type CanvasProps = {
     mouseRadius: number;
     showMouseRadius: boolean;
     baseColor: RGBValue;
@@ -16,7 +10,7 @@ interface Props {
     minSize: number;
     maxSize: number;
     numParticles: number;
-}
+};
 
 type MousePosition = {
     x?: number;
@@ -31,7 +25,7 @@ function Canvas({
     minSize,
     maxSize,
     numParticles,
-}: Props): JSX.Element {
+}: CanvasProps) {
     const canvasElement = useRef<HTMLCanvasElement>(null);
     const requestRef = useRef(0);
 
@@ -141,11 +135,18 @@ function Canvas({
             canvas.height = window.innerHeight - 150;
             const newParticles: Particle[] = [];
             for (let i = 0; i < numParticles; i++) {
-                newParticles.push(generateParticle(canvas.width, canvas.height, minSize, maxSize));
+                newParticles.push(
+                    generateParticle(
+                        canvas.width,
+                        canvas.height,
+                        minSize,
+                        maxSize
+                    )
+                );
             }
             setParticles(newParticles);
         }
-    }
+    };
 
     useEffect(() => {
         generateParticles();
@@ -164,7 +165,12 @@ function Canvas({
 
 export default Canvas;
 
-function generateParticle(width:number, height:number, minSize:number, maxSize:number) {
+function generateParticle(
+    width: number,
+    height: number,
+    minSize: number,
+    maxSize: number
+) {
     return new Particle(
         Math.random() * width,
         Math.random() * height,
@@ -198,7 +204,7 @@ class Particle {
         color: string,
         minSize: number,
         maxSize: number,
-        shape: Shape,
+        shape: Shape
     ) {
         this.x = x;
         this.y = y;
@@ -239,10 +245,22 @@ class Particle {
             context.beginPath();
             switch (this.shape) {
                 case Shape.Circle:
-                    context.arc(this.x, this.y, this.size, 0, 2 * Math.PI, false);
+                    context.arc(
+                        this.x,
+                        this.y,
+                        this.size,
+                        0,
+                        2 * Math.PI,
+                        false
+                    );
                     break;
                 case Shape.Square:
-                    context.rect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
+                    context.rect(
+                        this.x - this.size / 2,
+                        this.y - this.size / 2,
+                        this.size,
+                        this.size
+                    );
                     break;
             }
             context.fillStyle = this.color;
@@ -263,15 +281,24 @@ class Particle {
 
     updateColor(baseColor: RGBValue, highlightColor: RGBValue) {
         const r =
-            (this.size - this.minSize) * (((highlightColor.r - baseColor.r) * 1) / (this.maxSize - this.minSize)) + baseColor.r;
+            (this.size - this.minSize) *
+                (((highlightColor.r - baseColor.r) * 1) /
+                    (this.maxSize - this.minSize)) +
+            baseColor.r;
         const g =
-            (this.size - this.minSize) * (((highlightColor.g - baseColor.g) * 1) / (this.maxSize - this.minSize)) + baseColor.g;
+            (this.size - this.minSize) *
+                (((highlightColor.g - baseColor.g) * 1) /
+                    (this.maxSize - this.minSize)) +
+            baseColor.g;
         const b =
-            (this.size - this.minSize) * (((highlightColor.b - baseColor.b) * 1) / (this.maxSize - this.minSize)) + baseColor.b;
+            (this.size - this.minSize) *
+                (((highlightColor.b - baseColor.b) * 1) /
+                    (this.maxSize - this.minSize)) +
+            baseColor.b;
         this.color = `rgb(${r}, ${g}, ${b})`;
     }
 
-    updateSize(minSize:number, maxSize:number) {
+    updateSize(minSize: number, maxSize: number) {
         this.minSize = minSize;
         this.maxSize = maxSize;
         if (this.size < minSize) {

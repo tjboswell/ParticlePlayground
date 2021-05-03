@@ -1,103 +1,11 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState } from 'react';
 import Controls from './controls';
 import Canvas from './canvas';
 import Presets from './presets';
-import { RGBValue,PresetList } from './types';
-import { Colors, ColorFields, Shape, PresetNames } from './enums';
-import './app.css';
-
-const presets: PresetList = {
-    [PresetNames.Fog]: {
-        baseColor: {
-            r: 23,
-            g: 32,
-            b: 56,
-        },
-        highlightColor: {
-            r: 164,
-            g: 221,
-            b: 219,
-        },
-        minSize: 0,
-        maxSize:35,
-        numParticles: 1000,
-    },
-     [PresetNames.Bubblegum]: {
-        baseColor: {
-            r: 255,
-            g: 255,
-            b: 255,
-        },
-        highlightColor: {
-            r: 255,
-            g: 202,
-            b: 223,
-        },
-        minSize: 0,
-        maxSize: 60,
-        numParticles: 500,
-    },
-    [PresetNames.BubbleBath]: {
-       baseColor: {
-           r: 176,
-           g: 222,
-           b: 255,
-       },
-       highlightColor: {
-           r: 248,
-           g: 248,
-           b: 255,
-       },
-       minSize: 0,
-       maxSize: 40,
-       numParticles: 1000,
-   },
-   [PresetNames.Slime]: {
-       baseColor: {
-           r: 71,
-           g: 255,
-           b: 58,
-       },
-       highlightColor: {
-           r: 21,
-           g: 57,
-           b: 35,
-       },
-       minSize: 0,
-       maxSize:100,
-       numParticles: 3000,
-   },
-   [PresetNames.PartiallyCloudy]: {
-       baseColor: {
-           r: 255,
-           g: 255,
-           b: 255,
-       },
-       highlightColor: {
-           r: 255,
-           g: 222,
-           b: 79,
-       },
-       minSize: 50,
-       maxSize:100,
-       numParticles: 500,
-   },
-   [PresetNames.Explosion]: {
-       baseColor: {
-           r: 255,
-           g: 0,
-           b: 87,
-       },
-       highlightColor: {
-           r: 255,
-           g: 255,
-           b: 0,
-       },
-       minSize: 0,
-       maxSize:50,
-       numParticles: 1000,
-   },
-};
+import { RGBValue } from './types';
+import { Colors, ColorFields } from './enums';
+import presetOptions, { defaultPreset } from './preset-options';
+import './app.scss';
 
 function App() {
     const [mouseRadius, setMouseRadius] = useState(80);
@@ -112,30 +20,39 @@ function App() {
         setShowMouseRadius(!showMouseRadius);
     };
 
-    const [baseColor, setColor1] = useState<RGBValue>(presets[PresetNames.Fog].baseColor);
+    const [baseColor, setBaseColor] = useState<RGBValue>(
+        presetOptions[defaultPreset].baseColor
+    );
 
-    const [highlightColor, setColor2] = useState<RGBValue>(presets[PresetNames.Fog].highlightColor);
+    const [highlightColor, setHighlightColor] = useState<RGBValue>(
+        presetOptions[defaultPreset].highlightColor
+    );
 
     const handleColorChanged = (
         e: React.ChangeEvent<HTMLInputElement>,
         color: Colors,
         colorField: ColorFields
     ) => {
+        console.log(color === Colors.BaseColor);
         if (color === Colors.BaseColor) {
-            setColor1({
+            setBaseColor({
                 ...baseColor,
                 [colorField]: parseInt(e.target.value),
             });
         } else if (color === Colors.HighlightColor) {
-            setColor2({
+            setHighlightColor({
                 ...highlightColor,
                 [colorField]: parseInt(e.target.value),
             });
         }
     };
 
-    const [minSize, setMinSize] = useState(presets[PresetNames.Fog].minSize);
-    const [maxSize, setMaxSize] = useState(presets[PresetNames.Fog].maxSize);
+    const [minSize, setMinSize] = useState(
+        presetOptions[defaultPreset].minSize
+    );
+    const [maxSize, setMaxSize] = useState(
+        presetOptions[defaultPreset].maxSize
+    );
     const handleMinSizeChanged = (
         e: React.ChangeEvent<HTMLInputElement>
     ): void => {
@@ -147,7 +64,9 @@ function App() {
         setMaxSize(parseInt(e.target.value));
     };
 
-    const [numParticles, setNumParticles] = useState(presets[PresetNames.Fog].numParticles);
+    const [numParticles, setNumParticles] = useState(
+        presetOptions[defaultPreset].numParticles
+    );
     const handleNumParticlesChanged = (
         e: React.ChangeEvent<HTMLInputElement>
     ): void => {
@@ -155,9 +74,9 @@ function App() {
     };
 
     const handlePresetClicked = (presetName: string) => {
-        const preset = presets[presetName];
-        setColor1(preset.baseColor);
-        setColor2(preset.highlightColor);
+        const preset = presetOptions[presetName];
+        setBaseColor(preset.baseColor);
+        setHighlightColor(preset.highlightColor);
         setMinSize(preset.minSize);
         setMaxSize(preset.maxSize);
         setNumParticles(preset.numParticles);

@@ -14,6 +14,17 @@
         display: flex;
         flex-direction: column;
 
+        &__header {
+            display: flex;
+        }
+
+        &__sample {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #aaa;
+            margin: 0 10px;
+        }
+
         .color-field-control {
             display: flex;
 

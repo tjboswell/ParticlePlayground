@@ -4,21 +4,12 @@ export enum Colors {
 }
 
 export enum ColorFields {
-    red = 'R',
-    green = 'G',
-    blue = 'B',
+    red = 'r',
+    green = 'g',
+    blue = 'b',
 }
 
 export enum Shape {
     Circle = 'Circle',
     Square = 'Square',
-}
-
-export enum PresetNames {
-    Fog = 'Fog',
-    Bubblegum = 'Bubblegum',
-    Slime = 'Slime',
-    BubbleBath = 'Bubble Bath',
-    PartiallyCloudy = 'Partially Cloudy',
-    Explosion = 'Explosion',
 }

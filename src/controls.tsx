@@ -135,7 +135,15 @@ function ColorControl({
 }: ColorControlProps) {
     return (
         <div className='color-control'>
-            <span className='color-control__name'>{color}</span>
+            <div className='color-control__header'>
+                <span className='color-control__name'>{color}</span>{' '}
+                <div
+                    className='color-control__sample'
+                    style={{
+                        backgroundColor: `rgb(${rgbValue.r},${rgbValue.g},${rgbValue.b})`,
+                    }}
+                />
+            </div>
             {Object.values(ColorFields).map((colorField) => (
                 <ColorFieldControl
                     colorValue={rgbValue}
@@ -170,7 +178,7 @@ function ColorFieldControl({
     return (
         <div className='color-field-control'>
             <label className='color-field-control__label'>
-                {colorField}: {fieldValue}
+                {colorField.toUpperCase()}: {fieldValue}
             </label>
             <input
                 type='range'

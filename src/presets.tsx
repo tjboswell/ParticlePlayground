@@ -1,4 +1,4 @@
-import { PresetNames } from './enums';
+import { PresetNames } from './preset-options';
 import './presets.scss';
 
 function Presets({ handlePresetClicked }) {
