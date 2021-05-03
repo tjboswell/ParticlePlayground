@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/ParticlePlayground/static/css/main.4f6a2fc3.chunk.css",
+    "main.js": "/ParticlePlayground/static/js/main.a0e58a52.chunk.js",
+    "main.js.map": "/ParticlePlayground/static/js/main.a0e58a52.chunk.js.map",
+    "runtime-main.js": "/ParticlePlayground/static/js/runtime-main.d605ff48.js",
+    "runtime-main.js.map": "/ParticlePlayground/static/js/runtime-main.d605ff48.js.map",
+    "static/js/2.4ab48b1a.chunk.js": "/ParticlePlayground/static/js/2.4ab48b1a.chunk.js",
+    "static/js/2.4ab48b1a.chunk.js.map": "/ParticlePlayground/static/js/2.4ab48b1a.chunk.js.map",
+    "index.html": "/ParticlePlayground/index.html",
+    "static/css/main.4f6a2fc3.chunk.css.map": "/ParticlePlayground/static/css/main.4f6a2fc3.chunk.css.map",
+    "static/js/2.4ab48b1a.chunk.js.LICENSE.txt": "/ParticlePlayground/static/js/2.4ab48b1a.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.d605ff48.js",
+    "static/js/2.4ab48b1a.chunk.js",
+    "static/css/main.4f6a2fc3.chunk.css",
+    "static/js/main.a0e58a52.chunk.js"
+  ]
+}
