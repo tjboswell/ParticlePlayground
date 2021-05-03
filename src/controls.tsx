@@ -1,109 +1,156 @@
-import React, { useCallback } from 'react';
-import { Color } from './types';
+import React from 'react';
+import { RGBValue, SliderEvent } from './types';
 import { Colors, ColorFields } from './enums';
 import './controls.scss';
 
-interface Props {
+type ControlsProps = {
     mouseRadius: number;
-    color1: Color;
-    color2: Color;
-    handleMouseRadiusChanged: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleMouseRadiusChanged: SliderEvent;
+
+    showMouseRadius: boolean;
+    handleShowMouseRadiusChecked: SliderEvent;
+
+    baseColor: RGBValue;
+    highlightColor: RGBValue;
     handleColorChanged: (
         e: React.ChangeEvent<HTMLInputElement>,
         color: Colors,
         field: ColorFields
     ) => void;
-}
+
+    minSize: number;
+    maxSize: number;
+    handleMinSizeChanged: SliderEvent;
+    handleMaxSizeChanged: SliderEvent;
+
+    numParticles: number;
+    handleNumParticlesChanged: SliderEvent;
+};
 
 function Controls({
     mouseRadius,
-    color1,
-    color2,
+    baseColor,
+    highlightColor,
     handleMouseRadiusChanged,
+    showMouseRadius,
+    handleShowMouseRadiusChecked,
     handleColorChanged,
-}: Props) {
+    minSize,
+    maxSize,
+    handleMinSizeChanged,
+    handleMaxSizeChanged,
+    numParticles,
+    handleNumParticlesChanged,
+}: ControlsProps) {
     return (
-        <div className='controls'>
-            <div className='controls__item'>
-                <label>Mouse Radius ({mouseRadius}px)</label>
-                <input
-                    type='range'
-                    min='20'
-                    max='200'
-                    value={mouseRadius}
-                    className='mouse-radius-slider'
-                    onChange={handleMouseRadiusChanged}
-                />
-            </div>
-
-            <div className='controls__item'>
-                <ColorControl
-                    colorValue={color1}
-                    color={Colors.Color1}
-                    handleColorChanged={handleColorChanged}
-                />
-            </div>
-            <div className='controls__item'>
-                <ColorControl
-                    colorValue={color2}
-                    color={Colors.Color2}
-                    handleColorChanged={handleColorChanged}
-                />
-            </div>
-
-            {/* <div className='controls__item'>
-                <div className='controls__color-control'>
-                    Color 2
-                    <ColorFieldControl
-                        colorValue={color2}
-                        color={Colors.Color2}
-                        colorField={ColorFields.red}
-                        handleColorChanged={handleColorChanged}
+        <div className='controls__wrapper'>
+            <div className='controls'>
+                <div className='controls__item'>
+                    <label>Mouse Radius ({mouseRadius}px)</label>
+                    <input
+                        type='range'
+                        min='20'
+                        max='200'
+                        value={mouseRadius}
+                        className='mouse-radius-slider'
+                        onChange={handleMouseRadiusChanged}
                     />
-                    <ColorFieldControl
-                        colorValue={color2}
-                        color={Colors.Color2}
-                        colorField={ColorFields.green}
-                        handleColorChanged={handleColorChanged}
+                    <label>Show Mouse Radius</label>
+                    <input
+                        type='checkbox'
+                        checked={showMouseRadius}
+                        onChange={handleShowMouseRadiusChecked}
                     />
-                    <ColorFieldControl
-                        colorValue={color2}
-                        color={Colors.Color2}
-                        colorField={ColorFields.blue}
+                </div>
+
+                <div className='controls__item'>
+                    <ColorControl
+                        rgbValue={baseColor}
+                        color={Colors.BaseColor}
                         handleColorChanged={handleColorChanged}
                     />
                 </div>
-            </div> */}
+                <div className='controls__item'>
+                    <ColorControl
+                        rgbValue={highlightColor}
+                        color={Colors.HighlightColor}
+                        handleColorChanged={handleColorChanged}
+                    />
+                </div>
+
+                <div className='controls__item'>
+                    <label>Min Size ({minSize}px)</label>
+                    <input
+                        type='range'
+                        min='0'
+                        max={maxSize - 1}
+                        value={minSize}
+                        className='min-size-slider'
+                        onChange={handleMinSizeChanged}
+                    />
+                </div>
+
+                <div className='controls__item'>
+                    <label>Max Size ({maxSize}px)</label>
+                    <input
+                        type='range'
+                        min={minSize + 1}
+                        max={100}
+                        value={maxSize}
+                        className='max-size-slider'
+                        onChange={handleMaxSizeChanged}
+                    />
+                </div>
+
+                <div className='controls__item'>
+                    <label>Number of Particles ({numParticles})</label>
+                    <input
+                        type='range'
+                        min={1}
+                        max={10000}
+                        value={numParticles}
+                        className='num-particles-slider'
+                        onChange={handleNumParticlesChanged}
+                    />
+                </div>
+            </div>
         </div>
     );
 }
 
-function ColorControl(props: {
-    colorValue: Color;
+type ColorControlProps = {
+    rgbValue: RGBValue;
     color: Colors;
     handleColorChanged: (
         e: React.ChangeEvent<HTMLInputElement>,
         color: Colors,
         field: ColorFields
     ) => void;
-}) {
+};
+
+function ColorControl({
+    rgbValue,
+    color,
+    handleColorChanged,
+}: ColorControlProps) {
     return (
         <div className='color-control'>
-            <span className='color-control__name'>{props.color}</span>
+            <span className='color-control__name'>{color}</span>
             {Object.values(ColorFields).map((colorField) => (
                 <ColorFieldControl
-                    colorValue={props.colorValue}
-                    color={props.color}
+                    colorValue={rgbValue}
+                    color={color}
                     colorField={colorField}
-                    handleColorChanged={props.handleColorChanged}
+                    handleColorChanged={handleColorChanged}
+                    key={`${color}--${colorField}`}
                 />
             ))}
         </div>
     );
 }
 
-function ColorFieldControl(props: {
-    colorValue: Color;
+type ColorFieldControlProps = {
+    colorValue: RGBValue;
     color: Colors;
     colorField: ColorFields;
     handleColorChanged: (
@@ -111,20 +158,27 @@ function ColorFieldControl(props: {
         color: Colors,
         field: ColorFields
     ) => void;
-}) {
-    const fieldValue = props.colorValue[props.colorField];
+};
+
+function ColorFieldControl({
+    colorValue,
+    color,
+    colorField,
+    handleColorChanged,
+}: ColorFieldControlProps) {
+    const fieldValue = colorValue[colorField];
     return (
         <div className='color-field-control'>
-            <label className='color-field-control__label'>{props.colorField}: {fieldValue}</label>
+            <label className='color-field-control__label'>
+                {colorField}: {fieldValue}
+            </label>
             <input
                 type='range'
                 min='0'
                 max='255'
                 value={fieldValue}
-                className='color-1-red-slider'
-                onChange={(e) =>
-                    props.handleColorChanged(e, props.color, props.colorField)
-                }
+                className='color-field-control__slider'
+                onChange={(e) => handleColorChanged(e, color, colorField)}
             />
         </div>
     );

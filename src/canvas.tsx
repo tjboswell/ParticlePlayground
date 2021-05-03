@@ -5,12 +5,17 @@ import React, {
     useCallback,
     useRef,
 } from 'react';
-import { Color } from './types';
+import { RGBValue } from './types';
+import { Shape } from './enums';
 
 interface Props {
     mouseRadius: number;
-    color1: Color;
-    color2: Color;
+    showMouseRadius: boolean;
+    baseColor: RGBValue;
+    highlightColor: RGBValue;
+    minSize: number;
+    maxSize: number;
+    numParticles: number;
 }
 
 type MousePosition = {
@@ -18,12 +23,17 @@ type MousePosition = {
     y?: number;
 };
 
-function Canvas({ mouseRadius, color1, color2 }: Props): JSX.Element {
+function Canvas({
+    mouseRadius,
+    showMouseRadius,
+    baseColor,
+    highlightColor,
+    minSize,
+    maxSize,
+    numParticles,
+}: Props): JSX.Element {
     const canvasElement = useRef<HTMLCanvasElement>(null);
     const requestRef = useRef(0);
-
-    const color1rgb = `rgb(${color1.r}, ${color1.g}, ${color1.b})`;
-    const color2rgb = `rgb(${color2.r}, ${color2.g}, ${color2.b})`;
 
     const [mouse, setMouse] = useState<MousePosition>({
         x: undefined,
@@ -39,7 +49,7 @@ function Canvas({ mouseRadius, color1, color2 }: Props): JSX.Element {
     const [particles, setParticles] = useState<Particle[]>([]);
 
     const onMouseMove = (event: { x: number; y: number }) => {
-        setMouse({ x: event.x - 50, y: event.y - 75 });
+        setMouse({ x: event.x - 50, y: event.y - 100 });
     };
 
     const onMouseOut = useCallback(() => {
@@ -48,7 +58,6 @@ function Canvas({ mouseRadius, color1, color2 }: Props): JSX.Element {
 
     const onResize = useCallback(() => {
         if (canvasElement && canvasElement.current) {
-            console.log('resize');
             canvasElement.current.width = window.innerWidth - 100;
             canvasElement.current.height = window.innerHeight - 150;
         }
@@ -75,6 +84,16 @@ function Canvas({ mouseRadius, color1, color2 }: Props): JSX.Element {
         };
     }, [canvasElement, onMouseOut]);
 
+    const drawMouse = useCallback(() => {
+        const context = getContext();
+        if (context && mouse.x && mouse.y) {
+            context.beginPath();
+            context.arc(mouse.x, mouse.y, mouseRadius, 0, 2 * Math.PI);
+            context.strokeStyle = '#000';
+            context.stroke();
+        }
+    }, [mouse, mouseRadius]);
+
     const animate = useCallback(() => {
         requestRef.current = requestAnimationFrame(animate);
         const context = getContext();
@@ -91,45 +110,72 @@ function Canvas({ mouseRadius, color1, color2 }: Props): JSX.Element {
                     mouse,
                     mouseRadius,
                     canvasElement.current,
-                    color1,
-                    color2
+                    baseColor,
+                    highlightColor
                 )
             );
-        } //   drawMouse();
-    }, [particles, getContext, color1, color2, mouse, mouseRadius]);
+        }
+        if (showMouseRadius) {
+            drawMouse();
+        }
+    }, [
+        particles,
+        getContext,
+        baseColor,
+        highlightColor,
+        mouse,
+        mouseRadius,
+        showMouseRadius,
+        drawMouse,
+    ]);
 
     useEffect(() => {
         requestRef.current = requestAnimationFrame(animate);
         return () => cancelAnimationFrame(requestRef.current);
     });
 
-    useEffect(() => {
+    const generateParticles = () => {
         const canvas = canvasElement.current;
         if (canvas) {
             canvas.width = window.innerWidth - 100;
             canvas.height = window.innerHeight - 150;
             const newParticles: Particle[] = [];
-            for (let i = 0; i < 500; i++) {
-                const particle = new Particle(
-                    Math.random() * canvas.width,
-                    Math.random() * canvas.height,
-                    (Math.round(Math.random()) * 2 - 1) * Math.random(),
-                    (Math.round(Math.random()) * 2 - 1) * Math.random(),
-                    0,
-                    'black'
-                );
-                newParticles.push(particle);
+            for (let i = 0; i < numParticles; i++) {
+                newParticles.push(generateParticle(canvas.width, canvas.height, minSize, maxSize));
             }
-            console.log('setting particles');
             setParticles(newParticles);
-            animate();
         }
+    }
+
+    useEffect(() => {
+        generateParticles();
     }, []);
+
+    useEffect(() => {
+        particles.forEach((particle) => particle.updateSize(minSize, maxSize));
+    }, [minSize, maxSize]);
+
+    useEffect(() => {
+        generateParticles();
+    }, [numParticles]);
 
     return <canvas id='canvas' ref={canvasElement}></canvas>;
 }
 
 export default Canvas;
+
+function generateParticle(width:number, height:number, minSize:number, maxSize:number) {
+    return new Particle(
+        Math.random() * width,
+        Math.random() * height,
+        (Math.round(Math.random()) * 2 - 1) * Math.random(),
+        (Math.round(Math.random()) * 2 - 1) * Math.random(),
+        'black',
+        minSize,
+        maxSize,
+        Shape.Circle
+    );
+}
 
 class Particle {
     x: number;
@@ -142,25 +188,29 @@ class Particle {
     maxSize: number;
     mousedOver: boolean;
     mouseDistance: number;
+    shape: Shape;
 
     constructor(
         x: number,
         y: number,
         dx: number,
         dy: number,
-        size: number,
-        color: string
+        color: string,
+        minSize: number,
+        maxSize: number,
+        shape: Shape,
     ) {
         this.x = x;
         this.y = y;
         this.dx = dx;
         this.dy = dy;
-        this.size = size;
+        this.size = minSize;
         this.color = color;
-        this.maxSize = 35;
-        this.minSize = 0;
+        this.minSize = minSize;
+        this.maxSize = maxSize;
         this.mousedOver = false;
         this.mouseDistance = Infinity;
+        this.shape = shape;
     }
 
     checkIsMousedOver(mouse: MousePosition, mouseRadius: number) {
@@ -175,7 +225,7 @@ class Particle {
     }
 
     move(canvas: HTMLCanvasElement | null) {
-        if ( canvas) {
+        if (canvas) {
             if (this.x < 0 || this.x > canvas.width) this.dx = -this.dx;
             if (this.y < 0 || this.y > canvas.height) this.dy = -this.dy;
 
@@ -185,15 +235,18 @@ class Particle {
     }
 
     draw(context: CanvasRenderingContext2D) {
-        if (this.mousedOver || this.size > this.minSize) {
+        if (this.mousedOver || this.size > 0) {
             context.beginPath();
-            context.arc(this.x, this.y, this.size, 0, 2 * Math.PI, false);
+            switch (this.shape) {
+                case Shape.Circle:
+                    context.arc(this.x, this.y, this.size, 0, 2 * Math.PI, false);
+                    break;
+                case Shape.Square:
+                    context.rect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
+                    break;
+            }
             context.fillStyle = this.color;
-            //               context.shadowBlur = 1;
-            //               context.shadowColor = this.color;
             context.fill();
-            context.strokeStyle = 'white';
-            //               context.stroke();
         }
     }
 
@@ -208,17 +261,22 @@ class Particle {
         }
     }
 
-    updateColor(color1: Color, color2: Color) {
-        //     if (this.size > this.minSize) {
+    updateColor(baseColor: RGBValue, highlightColor: RGBValue) {
         const r =
-            this.size * (((color2.r - color1.r) * 1) / this.maxSize) + color1.r;
+            (this.size - this.minSize) * (((highlightColor.r - baseColor.r) * 1) / (this.maxSize - this.minSize)) + baseColor.r;
         const g =
-            this.size * (((color2.g - color1.g) * 1) / this.maxSize) + color1.g;
+            (this.size - this.minSize) * (((highlightColor.g - baseColor.g) * 1) / (this.maxSize - this.minSize)) + baseColor.g;
         const b =
-            this.size * (((color2.b - color1.b) * 1) / this.maxSize) + color1.b;
+            (this.size - this.minSize) * (((highlightColor.b - baseColor.b) * 1) / (this.maxSize - this.minSize)) + baseColor.b;
         this.color = `rgb(${r}, ${g}, ${b})`;
-        //     }
-        //     this.color = blues[Math.floor((this.size / this.maxSize) * 2 - 1)];
+    }
+
+    updateSize(minSize:number, maxSize:number) {
+        this.minSize = minSize;
+        this.maxSize = maxSize;
+        if (this.size < minSize) {
+            this.size = minSize;
+        }
     }
 
     update(
@@ -226,12 +284,12 @@ class Particle {
         mouse: MousePosition,
         mouseRadius: number,
         canvas: HTMLCanvasElement | null,
-        color1: Color,
-        color2: Color
+        baseColor: RGBValue,
+        highlightColor: RGBValue
     ) {
         this.checkIsMousedOver(mouse, mouseRadius);
         this.grow();
-        this.updateColor(color1, color2);
+        this.updateColor(baseColor, highlightColor);
         this.move(canvas);
         this.draw(context);
     }
