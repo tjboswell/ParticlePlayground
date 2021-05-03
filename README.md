@@ -1,7 +1,8 @@
 # Particle Playground
 
 Use your mouse to interact with particles to change their size and color!
-Live demo: https://github.com/tjboswell/ParticlePlayground
+
+Live demo: https://tjboswell.github.io/ParticlePlayground/
 ![bubbles](https://user-images.githubusercontent.com/6114497/116928877-a4991880-ac2b-11eb-96fe-4e81323c8a45.gif)
 
 Use the controls at the top of the page to modify mouse settings, color settings, and particle settings.
